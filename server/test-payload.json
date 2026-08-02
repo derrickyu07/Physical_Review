@@ -1,0 +1,41 @@
+{
+  "userName": "Derrick",
+  "records": [
+    {
+      "date": "2026-07-13",
+      "steps": 8421,
+      "sleep_hours": 6.2,
+      "resting_heart_rate": 64,
+      "active_minutes": 22,
+      "calories_in": 2100,
+      "calories_out": 2300,
+      "water_oz": 48,
+      "weight_lbs": 182.4,
+      "mood_score": 3
+    },
+    {
+      "date": "2026-07-14",
+      "steps": 11342,
+      "sleep_hours": 7.1,
+      "resting_heart_rate": 62,
+      "active_minutes": 41,
+      "calories_in": 2050,
+      "calories_out": 2450,
+      "water_oz": 60,
+      "weight_lbs": 182.1,
+      "mood_score": 4
+    },
+    {
+      "date": "2026-07-15",
+      "steps": 6210,
+      "sleep_hours": 5.4,
+      "resting_heart_rate": 66,
+      "active_minutes": 12,
+      "calories_in": 2400,
+      "calories_out": 2100,
+      "water_oz": 40,
+      "weight_lbs": 182.6,
+      "mood_score": 2
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+}
+
+.ring {
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--accent) var(--progress, 0%),
+    var(--border) var(--progress, 0%)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ringInner {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.ringValue {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1;
+}
+
+.ringLabel {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.statRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  width: 100%;
+}
+
+.statCard {
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.statValue {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-h);
+  line-height: 1.2;
+}
+
+@media (max-width: 600px) {
+  .statRow {
+    grid-template-columns: 1fr;
+  }
+}

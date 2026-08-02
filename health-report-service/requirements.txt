@@ -1,0 +1,7 @@
+reportlab>=4.0
+matplotlib>=3.8
+requests>=2.31
+openai>=1.30
+python-dotenv>=1.0
+fastapi>=0.111
+uvicorn[standard]>=0.29

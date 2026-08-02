@@ -1,0 +1,60 @@
+.userInfoContainer {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: var(--shadow);
+}
+
+/* Display mode */
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profileInfo p {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 16px;
+}
+
+.profileInfo p strong {
+  color: var(--text-h);
+}
+
+/* Edit mode */
+.profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Buttons */
+.btnEdit {
+  margin-top: 8px;
+  padding: 10px 24px;
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s;
+  align-self: flex-start;
+}
+
+.btnEdit:hover {
+  background: var(--accent-border);
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}

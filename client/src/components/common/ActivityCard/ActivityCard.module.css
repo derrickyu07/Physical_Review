@@ -1,0 +1,106 @@
+.card {
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 0;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-h);
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  text-transform: capitalize;
+  flex-shrink: 0;
+}
+
+.green {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.orange {
+  background: #fff3e0;
+  color: #e65100;
+}
+.red {
+  background: #ffebee;
+  color: #c62828;
+}
+.gray {
+  background: #f5f5f5;
+  color: #424242;
+}
+
+.date {
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+.stats {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.25rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--code-bg, #f4f3ec);
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+}
+
+.statValue {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-h);
+}
+
+.statLabel {
+  font-size: 0.65rem;
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.deleteBtn {
+  align-self: flex-end;
+  margin-top: 0.25rem;
+  background: transparent;
+  border: 1px solid #e57373;
+  color: #e57373;
+  border-radius: 6px;
+  padding: 4px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+
+.deleteBtn:hover {
+  background: #e57373;
+  color: #fff;
+}
