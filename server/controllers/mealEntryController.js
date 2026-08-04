@@ -1,5 +1,11 @@
-const MealEntry = require("../models/MealEntry");
-const { isMissing } = require("../utils/validation.js");
+const {
+  createMealEntryService,
+  updateMealEntryService,
+  getMealEntryService,
+  deleteMealService,
+  getMealsService,
+} = require('../services/mealService.js');
+const { isMissing } = require('../utils/validation.js');
 
 const createMealEntry = async (req, res) => {
   try {
@@ -24,11 +30,11 @@ const createMealEntry = async (req, res) => {
       !mealType ||
       !quantity
     ) {
-      return res.status(404).json({ message: "please fill required fields" });
+      return res.status(400).json({ message: 'please fill required fields' });
     }
     const userId = req.user.id;
 
-    const userMealEntry = await MealEntry.create({
+    const mealEntry = await createMealEntryService({
       userId,
       name,
       calories,
@@ -40,7 +46,7 @@ const createMealEntry = async (req, res) => {
       quantity,
       micronutrients,
     });
-    res.status(201).json(userMealEntry);
+    res.status(201).json(mealEntry);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -51,19 +57,16 @@ const updateMealEntry = async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
 
-    const meal = await MealEntry.findOneAndUpdate(
-      { _id: id, userId: req.user._id },
+    const updatedMealEntry = await updateMealEntryService({
+      id,
+      userId: req.user._id,
       updates,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
-    if (!meal) {
-      return res.status(404).json({ message: "Meal not found" });
+    });
+    if (!updatedMealEntry) {
+      return res.status(404).json({ message: 'Meal not found' });
     }
 
-    res.status(200).json(meal);
+    res.status(200).json(updatedMealEntry);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -71,12 +74,9 @@ const updateMealEntry = async (req, res) => {
 
 const getMealEntry = async (req, res) => {
   try {
-    const mealEntry = await MealEntry.findOne({
-      _id: req.params.id,
-      userId: req.user._id,
-    });
+    const mealEntry = await getMealEntryService(req.params.id, req.user._id);
     if (!mealEntry) {
-      return res.status(404).json({ message: "Could not find the meal entry" });
+      return res.status(404).json({ message: 'Could not find the meal entry' });
     }
     res.status(200).json(mealEntry);
   } catch (error) {
@@ -86,10 +86,8 @@ const getMealEntry = async (req, res) => {
 
 const getAllMealEntry = async (req, res) => {
   try {
-    const meals = await MealEntry.find({
-      userId: req.user._id,
-    }).sort({ mealDate: -1 });
-    res.status(200).json(meals);
+    const mealEntries = await getMealsService(req.user._id);
+    res.status(200).json(mealEntries);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -97,14 +95,14 @@ const getAllMealEntry = async (req, res) => {
 
 const deleteMealEntry = async (req, res) => {
   try {
-    const mealEntry = MealEntry.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user._id,
-    });
-    if (!mealEntry) {
-      return res.status(404).json({ message: "meal entry not found" });
+    const deletedMealEntry = await deleteMealService(
+      req.params.id,
+      req.user._id,
+    );
+    if (!deletedMealEntry) {
+      return res.status(404).json({ message: 'meal entry not found' });
     }
-    res.status(200).json({ message: "meal entry was successfully deleted" });
+    res.status(200).json({ message: 'meal entry was successfully deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -1,24 +1,20 @@
-const PhysicalActivity = require("../models/PhysicalActivityEntry");
-const { getCaloriesBurned } = require("../services/activityCalorieService");
+const {
+  createPhysicalActivityEntryService,
+  updatePhysicalActivityEntryService,
+  getPhysicalActivityEntryService,
+  getPhysicalActivityEntriesService,
+  deletePhysicalActivityEntryService,
+} = require('../services/activityService');
 
 const createPhysicalActivityEntry = async (req, res) => {
   try {
     const { duration, activityType, activityDate, intensity } = req.body;
-    let caloriesBurned = req.body.caloriesBurned ?? null;
-
+    const caloriesBurned = req.body.caloriesBurned ?? null;
     if (!duration || !activityType || !activityDate || !intensity) {
-      return res.status(400).json({ message: "fill in required fields" });
+      return res.status(400).json({ message: 'fill in required fields' });
     }
 
-    caloriesBurned =
-      caloriesBurned ??
-      (await getCaloriesBurned(
-        req.user._id,
-        activityType,
-        duration,
-        intensity,
-      ));
-    const userPhysicalActivityEntry = await PhysicalActivity.create({
+    const activityEntry = await createPhysicalActivityEntryService({
       userId: req.user._id,
       caloriesBurned,
       intensity,
@@ -26,7 +22,7 @@ const createPhysicalActivityEntry = async (req, res) => {
       activityType,
       activityDate,
     });
-    res.status(201).json(userPhysicalActivityEntry);
+    res.status(201).json(activityEntry);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -34,20 +30,14 @@ const createPhysicalActivityEntry = async (req, res) => {
 
 const updatePhysicalActivityEntry = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updates = req.body;
-
-    const updatedPhysicalActivity = await PhysicalActivity.findOneAndUpdate(
-      { _id: id, userId: req.user._id },
-      updates,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
+    const updatedPhysicalActivity = await updatePhysicalActivityEntryService({
+      id: req.params.id,
+      userId: req.user._id,
+      updates: req.body,
+    });
 
     if (!updatedPhysicalActivity) {
-      return res.status(404).json({ message: "Physical Activity not found" });
+      return res.status(404).json({ message: 'Physical Activity not found' });
     }
 
     res.status(200).json(updatedPhysicalActivity);
@@ -58,35 +48,16 @@ const updatePhysicalActivityEntry = async (req, res) => {
 
 const getPhysicalActivityEntry = async (req, res) => {
   try {
-    const physicalActivity = await PhysicalActivity.findOne({
-      _id: req.params.id,
-      userId: req.user._id,
-    });
-    if (!physicalActivity) {
+    const activityEntry = await getPhysicalActivityEntryService(
+      req.params.id,
+      req.user._id,
+    );
+    if (!activityEntry) {
       return res
         .status(404)
-        .json({ message: "Could not find the physical activity entry" });
+        .json({ message: 'Could not find the physical activity entry' });
     }
-    res.status(200).json(physicalActivity);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-const deletePhysicalActivityEntry = async (req, res) => {
-  try {
-    const physicalActivity = await PhysicalActivity.findOneAndDelete({
-      _id: req.params.id,
-      userId: req.user._id,
-    });
-    if (!physicalActivity) {
-      return res.status(404).json({
-        message: "physical activity entry was not found",
-      });
-    }
-    res
-      .status(200)
-      .json({ message: "physical activity entry was successfully deleted" });
+    res.status(200).json(activityEntry);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -94,36 +65,33 @@ const deletePhysicalActivityEntry = async (req, res) => {
 
 const getAllPhysicalActivites = async (req, res) => {
   try {
-    const activities = await PhysicalActivity.find({
-      userId: req.user._id,
-    }).sort({
-      activityDate: -1,
-    });
-    res.status(200).json(activities);
+    const activityEntries = await getPhysicalActivityEntriesService(
+      req.user._id,
+    );
+    res.status(200).json(activityEntries);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// const getPhysicalActivityEntryCaloriesBurned = async (req, res) => {
-//   try {
-//     const { physicalActivity, intensity } = req.body;
-//     if (!physicalActivity) {
-//       return res
-//         .status(400)
-//         .json({ message: 'Input a valid physical activity' });
-//     }
-//     const caloriesBurned = calculateCaloriesBurned(
-//       physicalActivity,
-//       100,
-//       100,
-//       intensity,
-//     );
-//     res.status(200).json(caloriesBurned);
-//   } catch (error) {
-//     res.status(500).json({ message: error.message });
-//   }
-// };
+const deletePhysicalActivityEntry = async (req, res) => {
+  try {
+    const deletedActivityEntry = await deletePhysicalActivityEntryService(
+      req.params.id,
+      req.user._id,
+    );
+    if (!deletedActivityEntry) {
+      return res.status(404).json({
+        message: 'physical activity entry was not found',
+      });
+    }
+    res
+      .status(200)
+      .json({ message: 'physical activity entry was successfully deleted' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
   createPhysicalActivityEntry,
@@ -131,5 +99,4 @@ module.exports = {
   getPhysicalActivityEntry,
   deletePhysicalActivityEntry,
   getAllPhysicalActivites,
-  // getPhysicalActivityEntryCaloriesBurned,
 };

@@ -1,17 +1,14 @@
-const crypto = require('crypto');
-const Report = require('../models/Report');
-const {
-  s3,
-  BUCKET,
-  PutObjectCommand,
-  GetObjectCommand,
-  getSignedUrl,
-} = require('../config/s3');
-const { uploadThumbnail } = require('../services/thumbnailService');
 const {
   generateAndSaveWeeklyReport,
-  deleteWeeklyReport: deleteWeeklyReportService,
+  deleteWeeklyReportService,
+  getUploadUrlService,
+  updateReportService,
+  getReportService,
+  getDownloadUrlService,
+  getReportsService,
+  confirmUploadService,
 } = require('../services/weeklyReportService');
+
 const getUploadUrl = async (req, res) => {
   try {
     const { fileName, contentType } = req.body;
@@ -22,21 +19,10 @@ const getUploadUrl = async (req, res) => {
         .json({ message: 'fileName and contentType are required' });
     }
 
-    const key = `reports/${crypto.randomUUID()}-${fileName}`;
-
-    const command = new PutObjectCommand({
-      Bucket: BUCKET,
-      Key: key,
-      ContentType: contentType,
-    });
-    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
-
-    const report = await Report.create({
+    const { report, uploadUrl, key } = await getUploadUrlService({
       userId: req.user._id,
       fileName,
       contentType,
-      s3Key: key,
-      status: 'pending',
     });
 
     res.status(201).json({ reportId: report._id, uploadUrl, key });
@@ -48,23 +34,12 @@ const getUploadUrl = async (req, res) => {
 
 const confirmUpload = async (req, res) => {
   try {
-    const report = await Report.findByIdAndUpdate(req.params.id);
+    const report = await updateReportService(req.params.id);
 
     if (!report) {
       return res.status(404).json({ message: 'Report not found' });
     }
-
-    const getResult = await s3.send(
-      new GetObjectCommand({ Bucket: BUCKET, Key: report.s3Key }),
-    );
-    const pdfBuffer = Buffer.from(await getResult.Body.transformToByteArray());
-
-    const thumbnailKey = await uploadThumbnail(pdfBuffer);
-
-    report.status = 'uploaded';
-    report.size = req.body.size;
-    report.thumbnailKey = thumbnailKey;
-    await report.save();
+    await confirmUploadService(report, req.body.size);
 
     res.status(200).json(report);
   } catch (err) {
@@ -75,14 +50,13 @@ const confirmUpload = async (req, res) => {
 
 const getDownloadUrl = async (req, res) => {
   try {
-    const report = await Report.findById(req.params.id);
+    const report = await getReportService(req.params.id, req.user._id);
 
     if (!report || report.status !== 'uploaded') {
       return res.status(404).json({ message: 'Report not found' });
     }
 
-    const command = new GetObjectCommand({ Bucket: BUCKET, Key: report.s3Key });
-    const downloadUrl = await getSignedUrl(s3, command, { expiresIn: 300 });
+    const downloadUrl = await getDownloadUrlService(report);
 
     res.status(200).json({ downloadUrl, fileName: report.fileName });
   } catch (err) {
@@ -91,44 +65,9 @@ const getDownloadUrl = async (req, res) => {
   }
 };
 
-const getUserReports = async (req, res) => {
+const getReports = async (req, res) => {
   try {
-    const reports = await Report.find({
-      userId: req.user._id,
-      status: 'uploaded',
-    })
-      .select('fileName s3Key thumbnailKey createdAt size')
-      .sort({ createdAt: -1 });
-
-    const reportsWithUrls = await Promise.all(
-      reports.map(async (report) => {
-        const downloadUrl = await getSignedUrl(
-          s3,
-          new GetObjectCommand({ Bucket: BUCKET, Key: report.s3Key }),
-          { expiresIn: 1800 }, // 30 min — more forgiving than 5 for a page left open
-        );
-
-        const previewUrl = report.thumbnailKey
-          ? await getSignedUrl(
-              s3,
-              new GetObjectCommand({
-                Bucket: BUCKET,
-                Key: report.thumbnailKey,
-              }),
-              { expiresIn: 1800 },
-            )
-          : null;
-
-        return {
-          id: report._id,
-          fileName: report.fileName,
-          date: report.createdAt,
-          size: report.size,
-          downloadUrl,
-          previewUrl,
-        };
-      }),
-    );
+    const reportsWithUrls = await getReportsService(req.user._id);
 
     res.status(200).json(reportsWithUrls);
   } catch (error) {
@@ -142,11 +81,7 @@ const createWeeklyReport = async (req, res) => {
       req.user._id,
       req.user.name,
     );
-    const downloadUrl = await getSignedUrl(
-      s3,
-      new GetObjectCommand({ Bucket: BUCKET, Key: report.s3Key }),
-      { expiresIn: 300 },
-    );
+    const downloadUrl = await getDownloadUrlService(report);
     res
       .status(201)
       .json({ reportId: report._id, downloadUrl, fileName: report.fileName });
@@ -161,11 +96,9 @@ const createWeeklyReport = async (req, res) => {
 
 const deleteWeeklyReport = async (req, res) => {
   try {
-    const id = req.params.id;
-    const userId = req.user._id;
-    const report = await deleteWeeklyReportService(id, userId);
+    const report = await deleteWeeklyReportService(req.params.id, req.user._id);
     if (!report) {
-      res.status(404).json({ message: 'The report cound not be found' });
+      return res.status(404).json({ message: 'The report cound not be found' });
     }
     res.status(200).json({ message: 'Report deleted', report });
   } catch (error) {
@@ -178,6 +111,6 @@ module.exports = {
   getUploadUrl,
   confirmUpload,
   getDownloadUrl,
-  getUserReports,
+  getReports,
   createWeeklyReport,
 };
