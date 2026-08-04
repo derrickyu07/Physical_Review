@@ -2,11 +2,11 @@ import { useForm } from 'react-hook-form';
 import styles from '../../../styles/Form.module.css'
 import { useEffect, useRef, useState } from 'react';
 import api from '../../../services/axios';
+import { toDatetimeLocalValue } from '../../../utils/dateUtils';
 
 function MealForm({ onSubmit, isLoading, isSuccess }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
-    const [searching, setSearching] = useState(false);
 
     const debounceRef = useRef(null);
 
@@ -16,12 +16,11 @@ function MealForm({ onSubmit, isLoading, isSuccess }) {
 
         clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(async () => {
-            setSearching(true);
             try {
                 const { data } = await api.get(`/foods/search?query=${value}`);
                 setResults(data.data);
-            } finally {
-                setSearching(false);
+            } catch (err) {
+                console.error('Failed to search foods', err);
             }
         }, 400);
     };
@@ -30,7 +29,7 @@ function MealForm({ onSubmit, isLoading, isSuccess }) {
         errors
     }, setValue } = useForm({
         defaultValues: {
-            mealDate: new Date().toISOString().slice(0, 16)
+            mealDate: toDatetimeLocalValue()
         }
     })
 
@@ -54,7 +53,7 @@ function MealForm({ onSubmit, isLoading, isSuccess }) {
     };
 
     useEffect(() => {
-        if (isSuccess) reset();
+        if (isSuccess) reset({ mealDate: toDatetimeLocalValue() });
     }, [reset, isSuccess])
 
     return (
@@ -83,7 +82,7 @@ function MealForm({ onSubmit, isLoading, isSuccess }) {
                     </div>
                     <div className={styles.formGroup}>
                         <label className={styles.label} htmlFor='name'>Name</label>
-                        <input type="test" id='name' name="name" placeholder="e.g. Grilled Chicken Breast" {...register('name', { required: 'Meal name is required' })} />
+                        <input type="text" id='name' name="name" placeholder="e.g. Grilled Chicken Breast" {...register('name', { required: 'Meal name is required' })} />
                         {errors.name && <p className={styles.errorMessage}>{errors.name.message}</p>}
                     </div>
                     <div className={styles.formGroup}>

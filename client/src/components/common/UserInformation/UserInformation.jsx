@@ -4,7 +4,7 @@ function UserInformation({ user, bodyMetric, isLoading, onSubmit, isEditing, set
 
 
     return (
-        <div className="user-info-container">
+        <div className={styles.userInfoContainer}>
             {!isEditing && (
                 <div className={styles.profileInfo}>
                     <p><strong>Name: </strong>{user.name}</p>

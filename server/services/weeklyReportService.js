@@ -106,11 +106,6 @@ async function getUploadUrlService({ userId, fileName, contentType }) {
   return { report, uploadUrl, key };
 }
 
-async function updateReportService(id) {
-  const report = await Report.findByIdAndUpdate(id);
-  return report;
-}
-
 async function confirmUploadService(report, size) {
   const getResult = await s3.send(
     new GetObjectCommand({ Bucket: BUCKET, Key: report.s3Key }),
@@ -125,8 +120,8 @@ async function confirmUploadService(report, size) {
   await report.save();
 }
 
-async function getReportService(id, userId) {
-  const report = await Report.findById({ _id: id, userId });
+async function getReportService(id) {
+  const report = await Report.findById(id);
   return report;
 }
 
@@ -197,7 +192,6 @@ module.exports = {
   deleteWeeklyReport,
   generateAndSaveWeeklyReport,
   getUploadUrlService,
-  updateReportService,
   confirmUploadService,
   getReportService,
   getDownloadUrlService,

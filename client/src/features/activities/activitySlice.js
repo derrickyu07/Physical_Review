@@ -144,7 +144,7 @@ export const activitySlice = createSlice({
       })
       .addCase(deleteActivity.fulfilled, (state, action) => {
         state.activities = state.activities.filter(
-          (a) => a.id !== action.payload,
+          (a) => a._id !== action.payload,
         );
       })
       .addCase(deleteActivity.rejected, (state, action) => {

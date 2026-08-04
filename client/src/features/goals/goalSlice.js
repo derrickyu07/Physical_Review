@@ -46,7 +46,7 @@ export const getGoal = createAsyncThunk('goal/get', async (id, thunkAPI) => {
   }
 });
 
-export const getGoals = createAsyncThunk('goal/getAll', async (thunkAPI) => {
+export const getGoals = createAsyncThunk('goal/getAll', async (_,thunkAPI) => {
   try {
     return await goalService.getGoals();
   } catch (error) {

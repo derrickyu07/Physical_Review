@@ -5,20 +5,21 @@
  * Requires Node 18+ (built-in `fetch`). No extra npm dependencies.
  */
 
-const fs = require("fs");
+const fs = require('fs');
 
 const HEALTH_REPORT_SERVICE_URL =
-  process.env.HEALTH_REPORT_SERVICE_URL || "http://localhost:8000";
+  process.env.HEALTH_REPORT_SERVICE_URL || 'http://localhost:8000';
 
 async function generateWeeklyReport({
   userName,
   records,
-  advisor = "rule_based",
+  advisor = 'rule_based',
+  goals,
 }) {
   const response = await fetch(`${HEALTH_REPORT_SERVICE_URL}/reports/weekly`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_name: userName, records, advisor }),
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_name: userName, records, advisor, goals }),
   });
 
   if (!response.ok) {

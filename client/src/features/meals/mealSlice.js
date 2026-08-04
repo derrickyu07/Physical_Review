@@ -37,7 +37,7 @@ export const editMeal = createAsyncThunk(
 );
 export const getMeal = createAsyncThunk('meal/get', async (id, thunkAPI) => {
   try {
-    return await mealService.createMeal(id);
+    return await mealService.getMeal(id);
   } catch (error) {
     return thunkAPI.rejectWithValue(
       error.response?.data?.message || error.message,

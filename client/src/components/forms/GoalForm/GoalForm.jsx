@@ -16,7 +16,7 @@ function GoalForm({ onSubmit, isLoading, isSuccess }) {
             <div className={styles.formCard}>
                 <p className={styles.formTitle}>Add a goal</p>
                 <div className={styles.formGrid}>
-                    <div className={`${styles.formGroup} ${styles.full}`}>
+                    <div className={`${styles.formGroup}`}>
                         <label>Goal type</label>
                         <select className={styles.formSelect}
                             {...register('goalType', { required: 'Goal type is required' })}

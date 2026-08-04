@@ -1,13 +1,13 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const validation = require("../middleware/validationMiddleware");
-const protect = require("../middleware/authMiddleware");
+const validation = require('../middleware/validationMiddleware');
+const protect = require('../middleware/authMiddleware');
 const {
   registerUserValidation,
   loginUserValidation,
   updateUserValidation,
-} = require("../validators/userValidator");
+} = require('../validators/userValidator');
 
 const {
   registerUser,
@@ -15,18 +15,18 @@ const {
   getUserProfile,
   getAllUsers,
   updateUser,
-} = require("../controllers/userController");
+} = require('../controllers/userController');
 
-router.post("/register", registerUserValidation, validation, registerUser);
+router.post('/register', registerUserValidation, validation, registerUser);
 
-router.post("/login", loginUserValidation, validation, loginUser);
+router.post('/login', loginUserValidation, validation, loginUser);
 
-router.get("/profile", getUserProfile);
+router.get('/profile', protect, getUserProfile);
 
-router.get("/getAllUsers", protect, getAllUsers);
+router.get('/getAllUsers', protect, getAllUsers);
 
 router.put(
-  "/updateUser",
+  '/updateUser',
   updateUserValidation,
   validation,
   protect,
