@@ -6,7 +6,7 @@ const {
   getUploadUrl,
   confirmUpload,
   getDownloadUrl,
-  getUserReports,
+  getReports,
   createWeeklyReport,
   deleteWeeklyReport,
 } = require('../controllers/reportController');
@@ -14,7 +14,7 @@ const {
 router.post('/upload-url', protect, getUploadUrl);
 router.post('/:id/confirm', protect, confirmUpload);
 router.get('/:id/download-url', protect, getDownloadUrl);
-router.get('/get-user-reports', protect, getUserReports);
+router.get('/get-user-reports', protect, getReports);
 router.post('/create-report', protect, createWeeklyReport);
 router.delete('/:id', protect, deleteWeeklyReport);
 

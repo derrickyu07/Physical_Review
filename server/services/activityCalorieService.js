@@ -1,16 +1,30 @@
 const ACTIVITY_MET = require('../constants/activityMet');
+const { getUserMetrics } = require('./bodyMetricService');
 
 const normalize = (value) =>
   String(value || '')
     .toLowerCase()
     .replace(/\s+/g, '');
 
-const getCaloriesBurned = async (userId, activityType, duration, intensity) => {
-  // const bodyMetric = await BodyMetric.findOne({ userId });
-  // if (!bodyMetric) {
-  //   throw new Error('No body metrics found for user');
-  // }
-  return calculateCaloriesBurned(activityType, Number(duration), intensity, 27);
+const getCaloriesBurned = async ({
+  userId,
+  activityType,
+  duration,
+  intensity,
+}) => {
+  const bodyMetric = await getUserMetrics(userId);
+  if (!bodyMetric) {
+    throw new Error('No bodymetric found for this user');
+  }
+
+  const weightKg = bodyMetric.weight / 2.205;
+
+  return calculateCaloriesBurned({
+    activity: activityType,
+    durationMinutes: Number(duration),
+    intensity,
+    weightKg,
+  });
 };
 
 const getMet = (activity, intensity = 'moderate') => {
@@ -25,12 +39,12 @@ const getMet = (activity, intensity = 'moderate') => {
   return activityData[level] || activityData.moderate;
 };
 
-const calculateCaloriesBurned = (
+const calculateCaloriesBurned = ({
   activity,
   durationMinutes,
   intensity = 'moderate',
   weightKg,
-) => {
+}) => {
   if (!activity || !durationMinutes || !weightKg) {
     throw new Error('Missing required fields');
   }
