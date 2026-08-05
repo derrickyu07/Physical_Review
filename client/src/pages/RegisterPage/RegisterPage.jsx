@@ -14,7 +14,7 @@ function RegisterPage() {
 
     useEffect(() => {
         if (isError) console.log(message);
-        if (isSuccess || user) navigate('/');
+        if (isSuccess || user) navigate('/onboarding');
         dispatch(reset());
     }, [user, isError, isSuccess, message, navigate, dispatch]);
 
