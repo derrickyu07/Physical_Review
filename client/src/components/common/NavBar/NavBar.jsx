@@ -9,7 +9,7 @@ function NavBar() {
 
     return (
         <nav className={styles.navbar}>
-            <span className={styles.navLogo}>Physical Review</span>
+            <Link to="/" className={styles.navLogo}>Physical Review</Link>
             <ul className={styles.navLinks}>
                 <li><Link to="/" className={location.pathname === '/' ? styles.active : ''}>Dashboard</Link></li>
                 <li><Link to="/meals" className={location.pathname === '/meals' ? styles.active : ''}>Meals</Link></li>
