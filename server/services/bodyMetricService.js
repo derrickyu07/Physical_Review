@@ -1,7 +1,7 @@
 const BodyMetricEntry = require('../models/BodyMetricEntry');
 
 const calculateBMI = (height, weight) => {
-  return (weight / (height * height)) * 703;
+  return Math.round((weight / (height * height)) * 703 * 10) / 10;
 };
 
 const getUserMetrics = async (userId) => {

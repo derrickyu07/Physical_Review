@@ -4,16 +4,17 @@ function UserInformation({ user, bodyMetric, isLoading, onSubmit, isEditing, set
 
 
     return (
-        <div className="user-info-container">
+        <div className={styles.userInfoContainer}>
             {!isEditing && (
                 <div className={styles.profileInfo}>
-                    <p><strong>Name: </strong>{user.name}</p>
-                    <p><strong>Email: </strong>{user.email}</p>
-                    <p><strong>Height(inches): </strong>{bodyMetric.height}</p>
-                    <p><strong>Weight(lbs): </strong>{bodyMetric.weight}</p>
-                    <p><strong>Gender: </strong>{bodyMetric.gender}</p>
+                    <p><strong>Name: </strong> {user.name}</p>
+                    <p><strong>Email: </strong> {user.email}</p>
+                    <p><strong>Height(inches): </strong> {bodyMetric.height}</p>
+                    <p><strong>Weight(lbs): </strong> {bodyMetric.weight}</p>
+                    <p><strong>Gender: </strong> {bodyMetric.gender}</p>
                     <p><strong>Age: </strong>{bodyMetric.age}</p>
-                    <p><strong>BMI: </strong>{bodyMetric.bmi}</p>
+                    <p><strong>BMI: </strong> {bodyMetric.bmi}</p>
+                    <p><strong>Activity Level: </strong> {bodyMetric.activityLevel}</p>
                     <button className={styles.btnEdit} onClick={() => setIsEditing(true)}>Edit</button>
                 </div>
             )
