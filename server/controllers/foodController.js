@@ -1,22 +1,26 @@
+const { extractBasicNutrition } = require('../services/nutritionLookUpService');
 const {
   searchFoods,
   getFoodDetails,
-  extractBasicNutrition,
   extractSearchResults,
-} = require('../services/nutritionLookUpService');
+} = require('../services/foodLookUpService');
 
 const searchFood = async (req, res) => {
   try {
     const { query } = req.query;
-    if (!query) {
-      return res.status(400).json({ message: 'query is required' });
+    if (!query || query.trim().length < 3) {
+      return res
+        .status(400)
+        .json({ message: 'query must be at least 3 characters' });
     }
     const data = await searchFoods(query, 10);
     const { totalHits, results } = extractSearchResults(data);
     res.status(200).json({ success: true, totalHits, data: results });
   } catch (error) {
     const status = error.response?.status || 500;
-    res.status(status).json({ message: error.message });
+    console.error('USDA FDC error:', error.response?.data || error.message);
+    const message = error.response?.data?.message || error.message;
+    res.status(status).json({ message });
   }
 };
 
