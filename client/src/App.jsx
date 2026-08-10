@@ -6,7 +6,8 @@ import GoalPage from './pages/GoalPage/GoalPage';
 import UserInformationPage from './pages/UserInformationPage/UserInformationPage';
 import ReportPage from './pages/ReportPage/ReportPage';
 import MealPage from './pages/MealPage/MealPage';
-import ActivityPage from './pages/ActivityPage/ActivityPage';
+import ActivityPage from './pages/ActivityPage/ActivityPage.';
+import OnboardingPage from './pages/OnboardingPage/OnboardingPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Route path="/reports" element={<ReportPage />} />
       <Route path="/meals" element={<MealPage />} />
       <Route path="/activities" element={<ActivityPage />} />
+      <Route path="/onboarding" element={<OnboardingPage />} />
     </Routes>
   )
 }

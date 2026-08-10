@@ -131,7 +131,7 @@ export const mealSlice = createSlice({
       .addCase(getMeals.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
-        state.meals = action.payload;
+        state.message = action.payload;
       })
       .addCase(deleteMeal.fulfilled, (state, action) => {
         state.meals = state.meals.filter((m) => m._id !== action.payload);

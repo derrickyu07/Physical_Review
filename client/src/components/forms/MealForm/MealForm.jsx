@@ -12,8 +12,7 @@ function MealForm({ onSubmit, isLoading, isSuccess }) {
 
     const handleSearch = async (value) => {
         setQuery(value);
-        if (value.length < 2) return setResults([]);
-
+        if (value.trim().length < 3) return setResults([]);
         clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(async () => {
             try {

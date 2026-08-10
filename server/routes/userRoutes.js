@@ -15,6 +15,7 @@ const {
   getUserProfile,
   getAllUsers,
   updateUser,
+  getOrCreateDemoUser,
 } = require('../controllers/userController');
 
 router.post('/register', registerUserValidation, validation, registerUser);
@@ -32,5 +33,7 @@ router.put(
   protect,
   updateUser,
 );
+
+router.post('/getOrCreateDemoUser', getOrCreateDemoUser);
 
 module.exports = router;
