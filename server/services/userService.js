@@ -1,6 +1,9 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+const DEMO_USER_EMAIL = 'demo@physicalreview.app';
 
 async function getUserByEmailService(email) {
   const user = await User.findOne({ email });
@@ -43,6 +46,18 @@ async function verifyPassword(plainPassword, hashedPassword) {
   return bcrypt.compare(plainPassword, hashedPassword);
 }
 
+async function getOrCreateDemoUserService() {
+  let user = await getUserByEmailService(DEMO_USER_EMAIL);
+  if (!user) {
+    user = await createUserService({
+      name: 'demoUser',
+      email: DEMO_USER_EMAIL,
+      password: crypto.randomBytes(16).toString('hex'),
+    });
+  }
+  return user;
+}
+
 module.exports = {
   getUserByEmailService,
   createUserService,
@@ -51,4 +66,5 @@ module.exports = {
   getAllUsersService,
   generateToken,
   verifyPassword,
+  getOrCreateDemoUserService,
 };

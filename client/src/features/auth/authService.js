@@ -15,9 +15,15 @@ const updateUser = async (userData) => {
   return response.data;
 };
 
+const getOrCreateDemoUser = async()=>{
+  const response = await api.post('/user/getOrCreateDemoUser');
+  return response.data;
+}
+
 const authService = {
   registerUser,
   login,
   updateUser,
+  getOrCreateDemoUser
 };
 export default authService;
