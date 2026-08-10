@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { login, reset } from '../../features/auth/authSlice';
+import { getOrCreateDemoUser, login, reset } from '../../features/auth/authSlice';
 import styles from '../../styles/Login.module.css';
 
 function LoginPage() {
@@ -84,6 +84,14 @@ function LoginPage() {
                     Don't have an account?{' '}
                     <Link to="/register">Register</Link>
                 </p>
+                <button
+                    type="button"
+                    className={styles.btn}
+                    onClick={() => dispatch(getOrCreateDemoUser())}
+                    disabled={isLoading}
+                >
+                    Try the Demo
+                </button>
             </div>
         </div>
     );

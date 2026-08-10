@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
+    "seed:demo": "node scripts/seedDemo.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."

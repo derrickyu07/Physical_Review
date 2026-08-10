@@ -6,6 +6,7 @@ const {
   getAllUsersService,
   generateToken,
   verifyPassword,
+  getOrCreateDemoUserService,
 } = require('../services/userService');
 
 const registerUser = async (req, res) => {
@@ -100,10 +101,28 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const getOrCreateDemoUser = async (req, res) => {
+  try {
+    const user = await getOrCreateDemoUserService();
+    if (!user) {
+      return res.status(400).json({ message: 'user could not be created' });
+    }
+    res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id),
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   updateUser,
   getAllUsers,
+  getOrCreateDemoUser,
 };
