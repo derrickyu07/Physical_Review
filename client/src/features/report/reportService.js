@@ -1,7 +1,7 @@
 import api from '../../services/axios';
 
 const createWeeklyHealthReport = async (data) => {
-  const response = await api.post('/report/', data);
+  const response = await api.post('/reports/create-report', data);
   if (!response.data) {
     throw new Error('No data returned from server');
   }

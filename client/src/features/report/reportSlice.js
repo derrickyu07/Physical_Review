@@ -97,7 +97,7 @@ export const reportSlice = createSlice({
       .addCase(deleteReport.fulfilled, (state,action) => {
         state.isLoading = false;
         state.isSuccess = true;
-        state.reports= state.reports.filter((report)=>report._id!==action.payload)
+        state.reports= state.reports.filter((report)=>report.id!==action.payload)
       })
       .addCase(deleteReport.rejected, (state, action) => {
         state.isLoading = false;

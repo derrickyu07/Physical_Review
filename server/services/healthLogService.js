@@ -71,7 +71,7 @@ const logHealthEntry = async (userId, forDate) => {
       gender,
       activityLevel,
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 };
 

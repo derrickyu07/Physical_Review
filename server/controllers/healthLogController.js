@@ -3,9 +3,11 @@ const {
   generateAndSaveWeeklyReport,
 } = require('../services/weeklyReportService');
 
-const testRollUpHealthLog = async (req, res) => {
+const createHealthLog = async (req, res) => {
   try {
+    console.log(req.body);
     const date = req.body.date ? new Date(req.body.date) : new Date();
+    console.log(date);
     if (isNaN(date.getTime())) {
       return res.status(400).json({ message: 'Invalid date format' });
     }
@@ -29,4 +31,4 @@ const generateWeeklyReport = async (req, res) => {
   }
 };
 
-module.exports = { testRollUpHealthLog, generateWeeklyReport };
+module.exports = { createHealthLog, generateWeeklyReport };
