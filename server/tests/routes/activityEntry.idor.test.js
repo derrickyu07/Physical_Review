@@ -40,7 +40,7 @@ describe('GET /api/activities/:id - IDOR protection', () => {
   it("return 404 when User B requests User A's meal", async () => {
     const res = (
       await request(app).get(`/api/activities/${activityOwnedByA._id},`)
-    ).setEncoding(authHeader(userB._id.toString()));
+    ).set(authHeader(userB._id.toString()));
     expect(res.status).toBe(404);
 
     expect(res.body).not.toHaveProperty('activityType', 'running');
@@ -48,7 +48,7 @@ describe('GET /api/activities/:id - IDOR protection', () => {
   it('returns 200 with the activity when User B request their own activity', async () => {
     const res = (
       await request(app).get(`/api/activities/${activityOwnedByA._id}`)
-    ).setEncoding(authHeader(userA._id.toString()));
+    ).set(authHeader(userA._id.toString()));
     expect(res.status).toBe(200);
     expect(res.body.activityType).toBe('running');
   });
@@ -100,7 +100,7 @@ describe('GET /api/activities - scoping across users', () => {
       caloriesBurned: 200,
     });
 
-    const res = (await request(app).get('/api/activities')).setEncoding(
+    const res = (await request(app).get('/api/activities')).set(
       authHeader(userA._id.toString()),
     );
     expect(res.status).toBe(200);

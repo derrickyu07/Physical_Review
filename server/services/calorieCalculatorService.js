@@ -4,6 +4,7 @@ const {
 } = require('../constants/calories');
 const MealEntry = require('../models/MealEntry');
 const PhysicalActivityEntry = require('../models/PhysicalActivityEntry');
+
 const netCalories = (caloriesBurned, caloriesConsumed) => {
   return caloriesConsumed - caloriesBurned;
 };
