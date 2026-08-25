@@ -1,24 +1,23 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
-const validation = require("../middleware/validationMiddleware");
-const protect = require("../middleware/authMiddleware");
+const validation = require('../middleware/validationMiddleware');
+const protect = require('../middleware/authMiddleware');
 const {
   createMealEntryValidation,
   updateMealEntryValidation,
-} = require("../validators/mealEntryValidator");
+} = require('../validators/mealEntryValidator');
 
 const {
   createMealEntry,
   updateMealEntry,
   getMealEntry,
-  getMealsEntry,
   deleteMealEntry,
   getAllMealEntry,
-} = require("../controllers/mealEntryController");
+} = require('../controllers/mealEntryController');
 
 router.post(
-  "/",
+  '/',
   protect,
   createMealEntryValidation,
   validation,
@@ -26,17 +25,17 @@ router.post(
 );
 
 router.put(
-  "/:id",
+  '/:id',
   protect,
   updateMealEntryValidation,
   validation,
   updateMealEntry,
 );
 
-router.get("/:id", protect, getMealEntry);
+router.get('/:id', protect, getMealEntry);
 
-router.get("/", protect, getAllMealEntry);
+router.get('/', protect, getAllMealEntry);
 
-router.delete("/:id", protect, deleteMealEntry);
+router.delete('/:id', protect, deleteMealEntry);
 
 module.exports = router;

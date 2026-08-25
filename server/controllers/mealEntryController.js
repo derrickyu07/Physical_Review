@@ -32,7 +32,7 @@ const createMealEntry = async (req, res) => {
     ) {
       return res.status(400).json({ message: 'please fill required fields' });
     }
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const mealEntry = await createMealEntryService({
       userId,
