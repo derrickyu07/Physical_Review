@@ -1,4 +1,4 @@
-const PhysicalActivityEntry = require('../models/physicalActivityEntry.js');
+const PhysicalActivityEntry = require('../models/PhysicalActivityEntry.js');
 const { getCaloriesBurned } = require('./activityCalorieService.js');
 
 async function getActivitiesGivenTime(userId, start, end) {

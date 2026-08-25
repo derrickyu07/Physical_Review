@@ -8,3 +8,7 @@ export const getMonday = () => {
 export const getToday = () => new Date().toLocaleDateString('en-CA');
 export const getStartOfDay = () => `${getToday()}T00:00:00`;
 export const getEndOfDay = () => `${getToday()}T23:59:59`;
+export const toDatetimeLocalValue = (date = new Date()) => {
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+};

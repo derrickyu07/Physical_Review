@@ -22,7 +22,7 @@ router.post('/register', registerUserValidation, validation, registerUser);
 
 router.post('/login', loginUserValidation, validation, loginUser);
 
-router.get('/profile', getUserProfile);
+router.get('/profile', protect, getUserProfile);
 
 router.get('/getAllUsers', protect, getAllUsers);
 
