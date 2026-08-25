@@ -2,7 +2,6 @@ const {
   generateAndSaveWeeklyReport,
   deleteWeeklyReportService,
   getUploadUrlService,
-  updateReportService,
   getReportService,
   getDownloadUrlService,
   getReportsService,
@@ -34,7 +33,7 @@ const getUploadUrl = async (req, res) => {
 
 const confirmUpload = async (req, res) => {
   try {
-    const report = await updateReportService(req.params.id);
+    const report = await getReportService(req.params.id);
 
     if (!report) {
       return res.status(404).json({ message: 'Report not found' });

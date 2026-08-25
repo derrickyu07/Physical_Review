@@ -1,5 +1,5 @@
 const { s3, BUCKET, PutObjectCommand } = require('../config/s3');
-
+const crypto = require('crypto');
 const pdfToImg = require('pdf-img-convert');
 
 async function uploadThumbnail(pdfBuffer) {
@@ -13,7 +13,7 @@ async function uploadThumbnail(pdfBuffer) {
     new PutObjectCommand({
       Bucket: BUCKET,
       Key: thumbnailKey,
-      Body: Buffer.from(thumbnailImage),
+      Body: Buffer.from(thumbnailImage, 'base64'),
       ContentType: 'image/png',
     }),
   );

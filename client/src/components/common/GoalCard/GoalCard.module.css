@@ -24,15 +24,15 @@
   padding: 2px 8px;
   border-radius: 99px;
 }
-.badgeActive {
+.badgeactive {
   background: rgba(29, 158, 117, 0.12);
   color: #1d9e75;
 }
-.badgeComplete {
+.badgecomplete {
   background: rgba(83, 74, 183, 0.12);
   color: #534ab7;
 }
-.badgeInactive {
+.badgeinactive {
   background: rgba(107, 99, 117, 0.1);
   color: var(--text);
 }

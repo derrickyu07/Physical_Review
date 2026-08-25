@@ -21,7 +21,7 @@ The Node server owns routing, auth, and business orchestration; when a weekly re
 
 ## Tech stack
 
-**Frontend** — React 19, Redux Toolkit, React Router, React Hook Form + Yup validation, Axios, Vite, Tailwind CSS
+**Frontend** — React 19, Redux Toolkit, React Router, React Hook Form + Yup validation, Axios, Vite
 
 **Backend** — Node.js, Express 5, MongoDB/Mongoose, JWT + bcrypt auth, express-validator, USDA FoodData Central API
 
