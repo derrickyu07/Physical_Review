@@ -82,7 +82,7 @@ function MealForm({ onSubmit, isLoading, isSuccess }) {
                     </div>
                     <div className={styles.formGroup}>
                         <label className={styles.label} htmlFor='name'>Name</label>
-                        <input type="test" id='name' name="name" placeholder="e.g. Grilled Chicken Breast" {...register('name', { required: 'Meal name is required' })} />
+                        <input type="text" id='name' name="name" placeholder="e.g. Grilled Chicken Breast" {...register('name', { required: 'Meal name is required' })} />
                         {errors.name && <p className={styles.errorMessage}>{errors.name.message}</p>}
                     </div>
                     <div className={styles.formGroup}>

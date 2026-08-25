@@ -37,7 +37,7 @@ export const editMeal = createAsyncThunk(
 );
 export const getMeal = createAsyncThunk('meal/get', async (id, thunkAPI) => {
   try {
-    return await mealService.createMeal(id);
+    return await mealService.getMeal(id);
   } catch (error) {
     return thunkAPI.rejectWithValue(
       error.response?.data?.message || error.message,
@@ -132,6 +132,9 @@ export const mealSlice = createSlice({
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
+      })
+            .addCase(deleteMeal.pending, (state) => {
+        state.isLoading = true;
       })
       .addCase(deleteMeal.fulfilled, (state, action) => {
         state.meals = state.meals.filter((m) => m._id !== action.payload);
