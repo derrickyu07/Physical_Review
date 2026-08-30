@@ -133,6 +133,9 @@ export const mealSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
+            .addCase(deleteMeal.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(deleteMeal.fulfilled, (state, action) => {
         state.meals = state.meals.filter((m) => m._id !== action.payload);
       })
