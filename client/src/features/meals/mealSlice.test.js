@@ -7,7 +7,7 @@ const initialState = {
     meal: null,
     meals: [],
     isLoading: false,
-    isSucess: false,
+    isSuccess: false,
     isError: false,
     message:'',
 };
