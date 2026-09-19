@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Optional
 
 from .advisor import Advisor, RuleBasedAdvisor
 from .models import WeeklyHealthData, WeeklyStats
@@ -25,7 +24,7 @@ class WeeklyHealthReportService:
         self,
         advisor: Advisor,
         output_dir: Path | str = "reports",
-        fallback_advisor: Optional[Advisor] = None,
+        fallback_advisor: Advisor | None = None,
     ):
         self._advisor = advisor
         self._fallback_advisor = fallback_advisor or RuleBasedAdvisor()

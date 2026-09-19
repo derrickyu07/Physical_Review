@@ -73,6 +73,5 @@ jobs:
           cache-dependency-path: health-report-service/requirements.txt
 
       - run: pip install -r requirements.txt
-      - run: pip install ruff pytest   # skip if already in requirements.txt
       - run: ruff check .
       - run: pytest

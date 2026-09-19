@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 import logging
-from typing import Optional, Protocol
+from typing import Protocol
 
 from .models import AdviceContent, UserGoals, WeeklyStats
 
@@ -82,16 +82,16 @@ class Advisor(Protocol):
         self,
         user_name: str,
         stats: WeeklyStats,
-        goals: Optional[UserGoals] = None,
-        previous_stats: Optional[WeeklyStats] = None,
+        goals: UserGoals | None = None,
+        previous_stats: WeeklyStats | None = None,
     ) -> AdviceContent: ...
 
 
 def _stats_to_prompt(
     user_name: str,
     stats: WeeklyStats,
-    goals: Optional[UserGoals],
-    previous_stats: Optional[WeeklyStats],
+    goals: UserGoals | None,
+    previous_stats: WeeklyStats | None,
 ) -> str:
     def fmt(value, unit=""):
         return f"{value}{unit}" if value is not None else "no data"
@@ -141,7 +141,7 @@ class OpenAIAdvisor:
     read from the ``OPENAI_API_KEY`` environment variable by the client).
     """
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4o-mini"):
+    def __init__(self, api_key: str | None = None, model: str = "gpt-4o-mini"):
         from openai import OpenAI  # imported lazily so RuleBasedAdvisor-only
 
         self._client = OpenAI(api_key=api_key)
@@ -151,8 +151,8 @@ class OpenAIAdvisor:
         self,
         user_name: str,
         stats: WeeklyStats,
-        goals: Optional[UserGoals] = None,
-        previous_stats: Optional[WeeklyStats] = None,
+        goals: UserGoals | None = None,
+        previous_stats: WeeklyStats | None = None,
     ) -> AdviceContent:
         user_prompt = _stats_to_prompt(user_name, stats, goals, previous_stats)
 
@@ -196,8 +196,8 @@ class RuleBasedAdvisor:
         self,
         user_name: str,
         stats: WeeklyStats,
-        goals: Optional[UserGoals] = None,
-        previous_stats: Optional[WeeklyStats] = None,
+        goals: UserGoals | None = None,
+        previous_stats: WeeklyStats | None = None,
     ) -> AdviceContent:
         key_wins: list[str] = []
         diet_changes: list[str] = []

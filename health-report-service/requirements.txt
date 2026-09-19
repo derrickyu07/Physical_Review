@@ -5,3 +5,4 @@ openai>=1.30
 python-dotenv>=1.0
 fastapi>=0.111
 uvicorn[standard]>=0.29
+ruff>=0.6

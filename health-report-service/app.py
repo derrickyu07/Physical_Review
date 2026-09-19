@@ -15,7 +15,7 @@ import logging
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
@@ -49,7 +49,7 @@ class WeeklyReportRequest(BaseModel):
         default="rule_based",
         description="Which advisor to use for generating advice/reinforcement text",
     )
-    goals: Optional[dict] = Field(
+    goals: dict | None = Field(
         default=None,
         description=(
             "Optional standing user goals -- goal_type, target_weight_lbs, "
@@ -57,7 +57,7 @@ class WeeklyReportRequest(BaseModel):
             "target_steps, target_active_minutes. Any subset is fine."
         ),
     )
-    openai_api_key: Optional[str] = Field(
+    openai_api_key: str | None = Field(
         default=None,
         description="Optional per-request OpenAI key override; otherwise reads OPENAI_API_KEY",
     )

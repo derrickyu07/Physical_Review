@@ -11,13 +11,11 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 import matplotlib
 
 matplotlib.use("Agg")  # headless: no display server needed
 import matplotlib.pyplot as plt
-
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -226,7 +224,7 @@ def build_pdf(
         story.append(_goals_table(stats, data.goals))
         story.append(Spacer(1, 10))
 
-    chart_path: Optional[Path] = None
+    chart_path: Path | None = None
     if any(d.active_minutes is not None or d.weight_lbs is not None for d in data.days):
         chart_path = _build_trend_chart(data)
         story.append(Image(str(chart_path), width=6.5 * inch, height=2.4 * inch))
