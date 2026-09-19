@@ -20,6 +20,7 @@ from typing import Literal
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from openai import OpenAIError
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 
@@ -88,7 +89,7 @@ def generate_weekly_report(payload: WeeklyReportRequest) -> FileResponse:
     if payload.advisor == "openai":
         try:
             advisor = OpenAIAdvisor(api_key=payload.openai_api_key)
-        except Exception:
+        except OpenAIError:
             logger.warning(
                 "Could not construct OpenAIAdvisor (missing/invalid key?); "
                 "falling back to rule-based advice."
