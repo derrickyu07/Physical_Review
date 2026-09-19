@@ -1,5 +1,5 @@
-const { describe, it, expect } = require('vitest');
-const { normalizeDate } = require('../../services/healthLogService');
+import { describe, it, expect } from 'vitest';
+import { normalizeDate } from '../../services/healthLogService';
 
 describe('normalizeDate', () => {
   it('zeroes out the time to UTC midnight for a date-only string', () => {

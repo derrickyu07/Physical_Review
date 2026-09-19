@@ -1,25 +1,35 @@
-const { describe, it, expect, vi, beforeEach } = require('vitest');
-const {
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
   calculateBMI,
   getUserMetrics,
   updateUserBodyMetric,
   createUserBodyMetric,
-} = require('../../services/bodyMetricService');
-const BodyMetricEntry = require('../models/BodyMetric');
-
-vi.mock('../../models/BodyMetricEntry');
+} from '../../services/bodyMetricService';
 
 const USER_ID = 'user_id';
-beforeEach(() => {
-  vi.clearAllMocks();
-});
+
+function mockDeps(overrides = {}) {
+  return {
+    BodyMetricEntry: {
+      findOne: vi.fn(),
+      findOneAndUpdate: vi.fn(),
+      create: vi.fn(),
+    },
+    calculateBMI: vi.fn(),
+    ...overrides,
+  };
+}
 
 describe('calculateBMI', () => {
-  it('returns BMI given weight and height', () => {
-    expect(calculateBMI(60, 140).toBe(27));
+  // Real implementation, not a mock -- this is the source of truth other
+  // tests' calculateBMI mocks should stay consistent with.
+  it('returns BMI given height and weight', () => {
+    // calculateBMI(height, weight); height=60in, weight=140lb
+    expect(calculateBMI(60, 140)).toBe(27.3);
   });
 });
-describe('getUserMetrics', async () => {
+
+describe('getUserMetrics', () => {
   it('queries the most recent entry for the given user, sorted by createdAt descending', async () => {
     const sort = vi.fn().mockResolvedValue({
       gender: 'female',
@@ -29,18 +39,23 @@ describe('getUserMetrics', async () => {
       activityLevel: 'moderate',
       bmi: 23.3,
     });
-    BodyMetricEntry.findOne.mockReturnValue({ sort });
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOne.mockReturnValue({ sort });
 
-    await getUserMetrics(USER_ID);
+    await getUserMetrics(USER_ID, deps);
 
-    expect(BodyMetricEntry.findOne).toHaveBeenCalledWith({ userId: USER_ID });
+    expect(deps.BodyMetricEntry.findOne).toHaveBeenCalledWith({
+      userId: USER_ID,
+    });
     expect(sort).toHaveBeenCalledWith({ createdAt: -1 });
   });
+
   it('returns null when the user has no body metric entries', async () => {
     const sort = vi.fn().mockResolvedValue(null);
-    BodyMetricEntry.findOne.mockReturnValue({ sort });
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOne.mockReturnValue({ sort });
 
-    const result = await getUserMetrics(USER_ID);
+    const result = await getUserMetrics(USER_ID, deps);
 
     expect(result).toBeNull();
   });
@@ -57,9 +72,10 @@ describe('getUserMetrics', async () => {
       bmi: 25.8,
       createdAt: new Date('2026-01-01'),
     });
-    BodyMetricEntry.findOne.mockReturnValue({ sort });
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOne.mockReturnValue({ sort });
 
-    const result = await getUserMetrics(USER_ID);
+    const result = await getUserMetrics(USER_ID, deps);
 
     expect(result).toEqual({
       gender: 'male',
@@ -69,7 +85,6 @@ describe('getUserMetrics', async () => {
       activityLevel: 'active',
       bmi: 25.8,
     });
-    // Confirms internal/unrelated document fields aren't passed through
     expect(result).not.toHaveProperty('_id');
     expect(result).not.toHaveProperty('createdAt');
   });
@@ -79,66 +94,80 @@ describe('updateUserBodyMetric', () => {
   const ID = 'metric-1';
 
   it('recalculates BMI using the new height and the existing weight when only height changes', async () => {
-    BodyMetricEntry.findOne.mockResolvedValue({ height: 65, weight: 140 });
-    BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
-    calculateBMI.mockReturnValue(24.1);
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOne.mockResolvedValue({ height: 65, weight: 140 });
+    deps.BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
+    deps.calculateBMI.mockReturnValue(24.1);
 
-    await updateUserBodyMetric(ID, USER_ID, { height: 68 });
+    await updateUserBodyMetric(ID, USER_ID, { height: 68 }, deps);
 
-    expect(calculateBMI).toHaveBeenCalledWith(68, 140); // new height, existing weight
-    const [, update] = BodyMetricEntry.findOneAndUpdate.mock.calls[0];
+    expect(deps.calculateBMI).toHaveBeenCalledWith(68, 140); // new height, existing weight
+    const [, update] = deps.BodyMetricEntry.findOneAndUpdate.mock.calls[0];
     expect(update.$set.bmi).toBe(24.1);
   });
 
   it('recalculates BMI using the new weight and the existing height when only weight changes', async () => {
-    BodyMetricEntry.findOne.mockResolvedValue({ height: 65, weight: 140 });
-    BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
-    calculateBMI.mockReturnValue(25.5);
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOne.mockResolvedValue({ height: 65, weight: 140 });
+    deps.BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
+    deps.calculateBMI.mockReturnValue(25.5);
 
-    await updateUserBodyMetric(ID, USER_ID, { weight: 148 });
+    await updateUserBodyMetric(ID, USER_ID, { weight: 148 }, deps);
 
-    expect(calculateBMI).toHaveBeenCalledWith(65, 148); // existing height, new weight
+    expect(deps.calculateBMI).toHaveBeenCalledWith(65, 148); // existing height, new weight
   });
 
   it('recalculates BMI using both new values when both change', async () => {
-    BodyMetricEntry.findOne.mockResolvedValue({ height: 65, weight: 140 });
-    BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
-    calculateBMI.mockReturnValue(26.0);
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOne.mockResolvedValue({ height: 65, weight: 140 });
+    deps.BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
+    deps.calculateBMI.mockReturnValue(26.0);
 
-    await updateUserBodyMetric(ID, USER_ID, { height: 68, weight: 150 });
+    await updateUserBodyMetric(ID, USER_ID, { height: 68, weight: 150 }, deps);
 
-    expect(calculateBMI).toHaveBeenCalledWith(68, 150);
+    expect(deps.calculateBMI).toHaveBeenCalledWith(68, 150);
   });
 
   it('does not touch BMI or call findOne when neither height nor weight is being updated', async () => {
-    BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
 
-    await updateUserBodyMetric(ID, USER_ID, { activityLevel: 'active' });
+    await updateUserBodyMetric(ID, USER_ID, { activityLevel: 'active' }, deps);
 
-    expect(BodyMetricEntry.findOne).not.toHaveBeenCalled();
-    expect(calculateBMI).not.toHaveBeenCalled();
-    const [, update] = BodyMetricEntry.findOneAndUpdate.mock.calls[0];
+    expect(deps.BodyMetricEntry.findOne).not.toHaveBeenCalled();
+    expect(deps.calculateBMI).not.toHaveBeenCalled();
+    const [, update] = deps.BodyMetricEntry.findOneAndUpdate.mock.calls[0];
     expect(update.$set).not.toHaveProperty('bmi');
   });
 
   it('returns null and never calls findOneAndUpdate when no matching entry exists for this user (IDOR safety)', async () => {
-    BodyMetricEntry.findOne.mockResolvedValue(null);
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOne.mockResolvedValue(null);
 
-    const result = await updateUserBodyMetric(ID, 'some-other-user', {
-      height: 68,
-    });
+    const result = await updateUserBodyMetric(
+      ID,
+      'some-other-user',
+      { height: 68 },
+      deps,
+    );
 
     expect(result).toBeNull();
-    expect(BodyMetricEntry.findOneAndUpdate).not.toHaveBeenCalled();
+    expect(deps.BodyMetricEntry.findOneAndUpdate).not.toHaveBeenCalled();
   });
 
   it('scopes the update to both _id and userId, using $set with runValidators', async () => {
-    BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
+    const deps = mockDeps();
+    deps.BodyMetricEntry.findOneAndUpdate.mockResolvedValue({ _id: ID });
 
-    await updateUserBodyMetric(ID, USER_ID, { activityLevel: 'sedentary' });
+    await updateUserBodyMetric(
+      ID,
+      USER_ID,
+      { activityLevel: 'sedentary' },
+      deps,
+    );
 
     const [filter, update, options] =
-      BodyMetricEntry.findOneAndUpdate.mock.calls[0];
+      deps.BodyMetricEntry.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({ _id: ID, userId: USER_ID });
     expect(update).toEqual({ $set: { activityLevel: 'sedentary' } });
     expect(options).toMatchObject({
@@ -150,13 +179,22 @@ describe('updateUserBodyMetric', () => {
 
 describe('createUserBodyMetric', () => {
   it('calculates BMI and creates a body metric entry with all fields', async () => {
-    calculateBMI.mockReturnValue(22.9);
-    BodyMetricEntry.create.mockResolvedValue({ _id: 'new-metric' });
+    const deps = mockDeps();
+    deps.calculateBMI.mockReturnValue(22.9);
+    deps.BodyMetricEntry.create.mockResolvedValue({ _id: 'new-metric' });
 
-    await createUserBodyMetric(USER_ID, 140, 65, 'female', 29, 'moderate');
+    await createUserBodyMetric(
+      USER_ID,
+      140,
+      65,
+      'female',
+      29,
+      'moderate',
+      deps,
+    );
 
-    expect(calculateBMI).toHaveBeenCalledWith(65, 140); // height, weight order
-    expect(BodyMetricEntry.create).toHaveBeenCalledWith({
+    expect(deps.calculateBMI).toHaveBeenCalledWith(65, 140); // height, weight order
+    expect(deps.BodyMetricEntry.create).toHaveBeenCalledWith({
       userId: USER_ID,
       weight: 140,
       height: 65,
@@ -168,9 +206,10 @@ describe('createUserBodyMetric', () => {
   });
 
   it('returns whatever BodyMetricEntry.create resolves to', async () => {
-    calculateBMI.mockReturnValue(22.9);
+    const deps = mockDeps();
+    deps.calculateBMI.mockReturnValue(22.9);
     const created = { _id: 'new-metric', userId: USER_ID };
-    BodyMetricEntry.create.mockResolvedValue(created);
+    deps.BodyMetricEntry.create.mockResolvedValue(created);
 
     const result = await createUserBodyMetric(
       USER_ID,
@@ -179,6 +218,7 @@ describe('createUserBodyMetric', () => {
       'female',
       29,
       'moderate',
+      deps,
     );
 
     expect(result).toEqual(created);

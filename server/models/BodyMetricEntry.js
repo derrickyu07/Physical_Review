@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const bodyMetricEntrySchema = new mongoose.Schema(
   {
@@ -18,7 +18,7 @@ const bodyMetricEntrySchema = new mongoose.Schema(
     },
     gender: {
       type: String,
-      enum: ["male", "female"],
+      enum: ['male', 'female'],
       required: true,
       trim: true,
     },
@@ -35,14 +35,14 @@ const bodyMetricEntrySchema = new mongoose.Schema(
     activityLevel: {
       type: String,
       enum: [
-        "sedentary",
-        "light",
-        "moderate",
-        "active",
-        "veryActive",
-        "extremelyActive",
+        'sedentary',
+        'light',
+        'moderate',
+        'active',
+        'veryActive',
+        'extremelyActive',
       ],
-      default: "sedentary",
+      default: 'sedentary',
       required: true,
     },
   },
@@ -51,4 +51,6 @@ const bodyMetricEntrySchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model("BodyMetricEntry", bodyMetricEntrySchema);
+module.exports =
+  mongoose.models.BodyMetricEntry ||
+  mongoose.model('BodyMetricEntry', bodyMetricEntrySchema);

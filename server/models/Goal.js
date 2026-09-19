@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const goalSchema = new mongoose.Schema(
   {
@@ -8,7 +8,7 @@ const goalSchema = new mongoose.Schema(
     },
     goalType: {
       type: String,
-      enum: ["weight loss", "muscle gain", "fat loss"],
+      enum: ['weight loss', 'muscle gain', 'fat loss'],
       required: true,
     },
     targetValue: {
@@ -31,7 +31,7 @@ const goalSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["active", "complete", "inactive"],
+      enum: ['active', 'complete', 'inactive'],
       required: true,
     },
   },
@@ -40,4 +40,4 @@ const goalSchema = new mongoose.Schema(
   },
 );
 
-module.exports = mongoose.model("Goal", goalSchema);
+module.exports = mongoose.models.Goal || mongoose.model('Goal', goalSchema);

@@ -142,12 +142,17 @@ export const activitySlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
+      .addCase(deleteActivity.pending, (state)=>{
+        state.isLoading = true;
+      })
       .addCase(deleteActivity.fulfilled, (state, action) => {
+                state.isLoading = false;
         state.activities = state.activities.filter(
           (a) => a._id !== action.payload,
         );
       })
       .addCase(deleteActivity.rejected, (state, action) => {
+        state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
       });

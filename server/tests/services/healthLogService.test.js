@@ -1,65 +1,64 @@
-const { describe, it, expect, vi, beforeEach } = require('vitest');
-const HealthLog = require('../../models/HealthLog');
-const {
-  getActivitiesGivenTime,
-  getTotalActivityTime,
-} = require('../../services/activityService');
-const { getUserMetrics } = require('../../services/bodyMetricService');
-const {
-  totalCaloriesBurned,
-  totalCaloriesConsumed,
-} = require('../../services/calorieCalculatorService');
-const {
-  getMealsGivenTime,
-  getTotalProtein,
-  getTotalCarbohydrate,
-  getTotalFat,
-} = require('../../services/mealService');
-const {
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import {
   logHealthEntry,
   getWeekRecords,
-} = require('../../services/healthLogService');
-
-vi.mock('../../models/HealthLog');
-vi.mock('../../services/activityService');
-vi.mock('../../services/bodyMetricService');
-vi.mock('../../services/calorieCalculatorService');
-vi.mock('../../services/mealService');
+} from '../../services/healthLogService';
 
 const USER_ID = 'user-123';
 
 const mockUserMetrics = {
-  gender: ' female',
+  gender: 'female',
   weight: 140,
   height: 66,
   age: 29,
   activityLevel: 'moderate',
 };
 
+function mockDeps() {
+  return {
+    HealthLog: {
+      findOneAndUpdate: vi.fn(),
+      find: vi.fn(),
+    },
+    getActivitiesGivenTime: vi.fn(),
+    getTotalActivityTime: vi.fn(),
+    getUserMetrics: vi.fn(),
+    totalCaloriesBurned: vi.fn(),
+    totalCaloriesConsumed: vi.fn(),
+    getMealsGivenTime: vi.fn(),
+    getTotalProtein: vi.fn(),
+    getTotalCarbohydrate: vi.fn(),
+    getTotalFat: vi.fn(),
+  };
+}
+
+let deps;
+
 beforeEach(() => {
-  vi.clearAllMocks();
+  deps = mockDeps();
 
-  getActivitiesGivenTime.mockResolved([{ id: 'a1' }]);
-  getMealsGivenTime.mockResolvedValue([{ id: 'm1' }]);
-  getTotalActivityTime.mockReturnValue(45);
-  totalCaloriesBurned.mockReturnValue(400);
-  totalCaloriesConsumed.mockReturnValue(2100);
-  getTotalProtein.mockReturnValue(120);
-  getTotalCarbohydrate.mockReturnValue(230);
-  getTotalFat.mockReturnValue(70);
-  getUserMetrics.mockResolvedValue(mockUserMetrics);
+  deps.getActivitiesGivenTime.mockResolvedValue([{ id: 'a1' }]);
+  deps.getMealsGivenTime.mockResolvedValue([{ id: 'm1' }]);
+  deps.getTotalActivityTime.mockReturnValue(45);
+  deps.totalCaloriesBurned.mockReturnValue(400);
+  deps.totalCaloriesConsumed.mockReturnValue(2100);
+  deps.getTotalProtein.mockReturnValue(120);
+  deps.getTotalCarbohydrate.mockReturnValue(230);
+  deps.getTotalFat.mockReturnValue(70);
+  deps.getUserMetrics.mockResolvedValue(mockUserMetrics);
 
-  HealthLog.findOneAndUpdate.mockResolvedValue({ _id: 'log-1' });
+  deps.HealthLog.findOneAndUpdate.mockResolvedValue({ _id: 'log-1' });
 });
 
 describe('logHealthEntry', () => {
   it('queries activities and meals for the full UTC day of the given date', async () => {
-    await logHealthEntry(USER_ID, '2026-03-10');
+    await logHealthEntry(USER_ID, '2026-03-10', deps);
 
-    const [, activityStart, activityEnd] = getActivitiesGivenTime.mock.calls[0];
+    const [, activityStart, activityEnd] =
+      deps.getActivitiesGivenTime.mock.calls[0];
     expect(activityStart.toISOString()).toBe('2026-03-10T00:00:00.000Z');
     expect(activityEnd.toISOString()).toBe('2026-03-10T23:59:59.999Z');
-    const [, mealStart, mealEnd] = getMealsGivenTime.mock.calls[0];
+    const [, mealStart, mealEnd] = deps.getMealsGivenTime.mock.calls[0];
     expect(mealStart.toISOString()).toBe('2026-03-10T00:00:00.000Z');
     expect(mealEnd.toISOString()).toBe('2026-03-10T23:59:59.999Z');
   });
@@ -68,15 +67,16 @@ describe('logHealthEntry', () => {
     const before = new Date();
     before.setUTCHours(0, 0, 0, 0);
 
-    await logHealthEntry(USER_ID);
+    await logHealthEntry(USER_ID, undefined, deps);
 
-    const [, activityStart] = getActivitiesGivenTime.mock.calls[0];
-    expect(activityStart.toISOStnig()).toBe(before.toISOString());
+    const [, activityStart] = deps.getActivitiesGivenTime.mock.calls[0];
+    expect(activityStart.toISOString()).toBe(before.toISOString());
   });
-  it('aggregates activity, meal, and user metric data into the upsert payload', async () => {
-    await logHealthEntry(USER_ID, '2026-03-10');
 
-    const [, updatePayload] = HealthLog.findOneAndUpdate.mock.calls[0];
+  it('aggregates activity, meal, and user metric data into the upsert payload', async () => {
+    await logHealthEntry(USER_ID, '2026-03-10', deps);
+
+    const [, updatePayload] = deps.HealthLog.findOneAndUpdate.mock.calls[0];
     expect(updatePayload).toMatchObject({
       $set: {
         userId: USER_ID,
@@ -96,9 +96,9 @@ describe('logHealthEntry', () => {
   });
 
   it('scopes the upsert filter to userId + date (IDOR safety, not just uniqueness)', async () => {
-    await logHealthEntry(USER_ID, '2026-03-10');
+    await logHealthEntry(USER_ID, '2026-03-10', deps);
 
-    const [filter] = HealthLog.findOneAndUpdate.mock.calls[0];
+    const [filter] = deps.HealthLog.findOneAndUpdate.mock.calls[0];
     expect(filter).toEqual({
       userId: USER_ID,
       date: expect.any(Date),
@@ -106,16 +106,16 @@ describe('logHealthEntry', () => {
   });
 
   it('upserts and returns the post-update document', async () => {
-    await logHealthEntry(USER_ID, '2026-03-10');
+    await logHealthEntry(USER_ID, '2026-03-10', deps);
 
-    const [, , options] = HealthLog.findOneAndUpdate.mock.calls[0];
+    const [, , options] = deps.HealthLog.findOneAndUpdate.mock.calls[0];
     expect(options).toMatchObject({ upsert: true, returnDocument: 'after' });
   });
 
   it('uses $set so unrelated fields on the existing document are preserved', async () => {
-    await logHealthEntry(USER_ID, '2026-03-10');
+    await logHealthEntry(USER_ID, '2026-03-10', deps);
 
-    const [, updatePayload] = HealthLog.findOneAndUpdate.mock.calls[0];
+    const [, updatePayload] = deps.HealthLog.findOneAndUpdate.mock.calls[0];
     expect(updatePayload).toHaveProperty('$set');
   });
 });
@@ -124,11 +124,11 @@ describe('getWeekRecords', () => {
   it('queries HealthLog scoped to the user and sorts/leans the result', async () => {
     const sort = vi.fn().mockReturnThis();
     const lean = vi.fn().mockResolvedValue([{ id: 'log-1' }]);
-    HealthLog.find.mockReturnValue({ sort, lean });
+    deps.HealthLog.find.mockReturnValue({ sort, lean });
 
-    const result = await getWeekRecords(USER_ID);
+    const result = await getWeekRecords(USER_ID, deps);
 
-    expect(HealthLog.find).toHaveBeenCalledWith(
+    expect(deps.HealthLog.find).toHaveBeenCalledWith(
       expect.objectContaining({
         userId: USER_ID,
         date: expect.objectContaining({

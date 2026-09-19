@@ -21,12 +21,25 @@ function normalizeDate(rawDate) {
   return d;
 }
 
-async function getWeekRecords(userId) {
+const defaultDeps = {
+  HealthLog,
+  getActivitiesGivenTime,
+  getTotalActivityTime,
+  getUserMetrics,
+  totalCaloriesBurned,
+  totalCaloriesConsumed,
+  getMealsGivenTime,
+  getTotalProtein,
+  getTotalCarbohydrate,
+  getTotalFat,
+};
+
+async function getWeekRecords(userId, deps = defaultDeps) {
   const weekEnd = new Date();
   const weekStart = new Date(weekEnd);
   weekStart.setDate(weekStart.getDate() - 7);
 
-  return HealthLog.find({
+  return deps.HealthLog.find({
     userId,
     date: { $gte: weekStart, $lte: weekEnd },
   })
@@ -34,27 +47,27 @@ async function getWeekRecords(userId) {
     .lean();
 }
 
-const logHealthEntry = async (userId, forDate) => {
+const logHealthEntry = async (userId, forDate, deps = defaultDeps) => {
   const date = normalizeDate(forDate || new Date());
   const start = new Date(date);
   const end = new Date(date);
   end.setUTCHours(23, 59, 59, 999);
 
-  const activities = await getActivitiesGivenTime(userId, start, end);
-  const meals = await getMealsGivenTime(userId, start, end);
-  const totalActivityTime = getTotalActivityTime(activities);
+  const activities = await deps.getActivitiesGivenTime(userId, start, end);
+  const meals = await deps.getMealsGivenTime(userId, start, end);
+  const totalActivityTime = deps.getTotalActivityTime(activities);
 
-  const caloriesOut = totalCaloriesBurned(activities);
-  const caloriesIn = totalCaloriesConsumed(meals);
+  const caloriesOut = deps.totalCaloriesBurned(activities);
+  const caloriesIn = deps.totalCaloriesConsumed(meals);
 
-  const totalProtein = getTotalProtein(meals);
-  const totalCarbohydrate = getTotalCarbohydrate(meals);
-  const totalFat = getTotalFat(meals);
+  const totalProtein = deps.getTotalProtein(meals);
+  const totalCarbohydrate = deps.getTotalCarbohydrate(meals);
+  const totalFat = deps.getTotalFat(meals);
 
   const { gender, weight, height, age, activityLevel } =
-    await getUserMetrics(userId);
+    await deps.getUserMetrics(userId);
 
-  return HealthLog.findOneAndUpdate(
+  return deps.HealthLog.findOneAndUpdate(
     { userId, date },
     {
       $set: {
@@ -73,8 +86,8 @@ const logHealthEntry = async (userId, forDate) => {
         activityLevel,
       },
     },
-    { upsert: true, new: true },
+    { upsert: true, returnDocument: 'after' },
   );
 };
 
-module.exports = { logHealthEntry, getWeekRecords };
+module.exports = { logHealthEntry, getWeekRecords, normalizeDate };
