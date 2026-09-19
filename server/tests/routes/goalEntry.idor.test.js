@@ -4,7 +4,7 @@ import request from 'supertest';
 
 import User from '../../models/User';
 import GoalEntry from '../../models/Goal';
-import GoalEntryRoutes from '../../routes/GoalRoutes';
+import GoalEntryRoutes from '../../routes/goalRoutes';
 
 import { authHeader } from '../helpers/auth';
 
