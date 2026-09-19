@@ -11,13 +11,11 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import Optional
 
 import matplotlib
 
 matplotlib.use("Agg")  # headless: no display server needed
 import matplotlib.pyplot as plt
-
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
@@ -44,26 +42,26 @@ def _build_trend_chart(data: WeeklyHealthData) -> Path:
     """Render a simple active-minutes + weight trend chart to a temp PNG
     and return its path. Caller is responsible for cleaning up the temp
     file.
-
+ 
     Pairs a physical-activity metric (active minutes) with a body metric
     (weight) since that's the combination most directly tied to a user's
     goal (e.g. lose_weight, build_muscle) -- swap this for calories
     in/out if you'd rather chart a different pair.
     """
-
+ 
     days = data.days
     labels = [d.day.strftime("%a") for d in days]
     active_minutes = [d.active_minutes if d.active_minutes is not None else 0 for d in days]
     # NaN (not 0) for missing weight readings, so matplotlib skips the
     # point instead of drawing a misleading drop to zero on the line.
     weight = [d.weight_lbs if d.weight_lbs is not None else float("nan") for d in days]
-
+ 
     fig, ax1 = plt.subplots(figsize=(6.5, 2.4), dpi=150)
     ax2 = ax1.twinx()
-
+ 
     ax1.bar(labels, active_minutes, color="#2E7D5B", alpha=0.75, label="Active minutes")
     ax2.plot(labels, weight, color="#1F5FA8", marker="o", linewidth=2, label="Weight (lbs)")
-
+ 
     ax1.set_ylabel("Active minutes", fontsize=8, color="#2E7D5B")
     ax2.set_ylabel("Weight (lbs)", fontsize=8, color="#1F5FA8")
     ax1.tick_params(axis="both", labelsize=8)
@@ -71,11 +69,21 @@ def _build_trend_chart(data: WeeklyHealthData) -> Path:
     ax1.spines["top"].set_visible(False)
     ax2.spines["top"].set_visible(False)
     fig.tight_layout()
-
-    tmp = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-    fig.savefig(tmp.name, transparent=True)
+ 
+    # Only used to atomically reserve a unique filename -- the handle
+    # itself is never written through, matplotlib opens the same path
+    # independently via savefig. Closing it here (rather than leaving it
+    # open until GC) avoids two live handles on the same file, which
+    # some platforms (Windows in particular) are stricter about than
+    # POSIX systems. delete=False is required: the file must outlive
+    # this function (it's embedded into the PDF by the caller, then
+    # explicitly unlinked once the PDF build finishes).
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+        tmp_path = Path(tmp.name)
+ 
+    fig.savefig(tmp_path, transparent=True)
     plt.close(fig)
-    return Path(tmp.name)
+    return tmp_path
 
 
 def _kpi_table(stats: WeeklyStats) -> Table:
@@ -226,7 +234,7 @@ def build_pdf(
         story.append(_goals_table(stats, data.goals))
         story.append(Spacer(1, 10))
 
-    chart_path: Optional[Path] = None
+    chart_path: Path | None = None
     if any(d.active_minutes is not None or d.weight_lbs is not None for d in data.days):
         chart_path = _build_trend_chart(data)
         story.append(Image(str(chart_path), width=6.5 * inch, height=2.4 * inch))

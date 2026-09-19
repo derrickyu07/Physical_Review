@@ -18,7 +18,7 @@ does three things:
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any, Optional
+from typing import Any
 
 import requests
 
@@ -56,8 +56,8 @@ DEFAULT_GOALS_FIELD_MAP: dict[str, list[str]] = {
 
 def fetch_json(
     url: str,
-    params: Optional[dict] = None,
-    headers: Optional[dict] = None,
+    params: dict | None = None,
+    headers: dict | None = None,
     timeout: float = 15.0,
 ) -> Any:
     """Fetch and return JSON from a health/fitness API endpoint.
@@ -120,9 +120,9 @@ def parse_daily_records(
 
 
 def parse_goals(
-    raw_goals: Optional[dict],
+    raw_goals: dict | None,
     field_map: dict[str, list[str]] = DEFAULT_GOALS_FIELD_MAP,
-) -> Optional[UserGoals]:
+) -> UserGoals | None:
     """Convert a single raw "goals" record into a ``UserGoals`` object.
     Returns ``None`` if no goals data was provided at all."""
 
@@ -146,7 +146,7 @@ def parse_goals(
 def build_weekly_health_data(
     user_name: str,
     records: list[dict],
-    goals: Optional[dict] = None,
+    goals: dict | None = None,
     field_map: dict[str, list[str]] = DEFAULT_FIELD_MAP,
     goals_field_map: dict[str, list[str]] = DEFAULT_GOALS_FIELD_MAP,
 ) -> WeeklyHealthData:

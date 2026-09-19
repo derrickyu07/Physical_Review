@@ -12,7 +12,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import date
 from statistics import mean
-from typing import Optional
 
 
 @dataclass
@@ -22,24 +21,24 @@ class DailyMetric:
 
     day: date
     # Physical activity
-    active_minutes: Optional[int] = None
+    active_minutes: int | None = None
     # Calorie intake / expenditure
-    calories_in: Optional[int] = None
-    calories_out: Optional[int] = None
+    calories_in: int | None = None
+    calories_out: int | None = None
     # Macro nutrients (grams)
-    protein_g: Optional[float] = None
-    carbs_g: Optional[float] = None
-    fat_g: Optional[float] = None
+    protein_g: float | None = None
+    carbs_g: float | None = None
+    fat_g: float | None = None
     # Body metrics
-    weight_lbs: Optional[float] = None
+    weight_lbs: float | None = None
     # Profile (logged per-day in the source data, but near-constant --
     # WeeklyStats takes the most recent non-null value rather than
     # averaging these, since you can't average a string, and an average
     # height/age across a week is meaningless anyway)
-    height: Optional[float] = None
-    age: Optional[int] = None
-    gender: Optional[str] = None
-    activity_level: Optional[str] = None
+    height: float | None = None
+    age: int | None = None
+    gender: str | None = None
+    activity_level: str | None = None
 
 
 @dataclass
@@ -53,14 +52,14 @@ class UserGoals:
     (LLM or rule-based) only reasons about whichever targets are present.
     """
 
-    goal_type: Optional[str] = None  # e.g. "lose_weight", "maintain", "build_muscle", "improve_endurance"
-    target_weight_lbs: Optional[float] = None
-    target_calories_in: Optional[int] = None
-    target_protein_g: Optional[float] = None
-    target_carbs_g: Optional[float] = None
-    target_fat_g: Optional[float] = None
-    target_steps: Optional[int] = None
-    target_active_minutes: Optional[int] = None
+    goal_type: str | None = None  # e.g. "lose_weight", "maintain", "build_muscle", "improve_endurance"
+    target_weight_lbs: float | None = None
+    target_calories_in: int | None = None
+    target_protein_g: float | None = None
+    target_carbs_g: float | None = None
+    target_fat_g: float | None = None
+    target_steps: int | None = None
+    target_active_minutes: int | None = None
 
 
 @dataclass
@@ -71,8 +70,8 @@ class WeeklyHealthData:
     week_start: date
     week_end: date
     days: list[DailyMetric] = field(default_factory=list)
-    goals: Optional[UserGoals] = None
-    previous_week_stats: Optional["WeeklyStats"] = None
+    goals: UserGoals | None = None
+    previous_week_stats: WeeklyStats | None = None
 
 
 @dataclass
@@ -81,23 +80,23 @@ class WeeklyStats:
     by both the advisor (LLM or rule-based) and the PDF renderer, so the
     two never disagree about the numbers."""
 
-    avg_active_minutes: Optional[float]
-    avg_calories_in: Optional[float]
-    avg_calories_out: Optional[float]
-    avg_protein_g: Optional[float]
-    avg_carbs_g: Optional[float]
-    avg_fat_g: Optional[float]
-    weight_start: Optional[float]
-    weight_end: Optional[float]
-    weight_change_lbs: Optional[float]
-    height: Optional[float]
-    age: Optional[int]
-    gender: Optional[str]
-    activity_level: Optional[str]
+    avg_active_minutes: float | None
+    avg_calories_in: float | None
+    avg_calories_out: float | None
+    avg_protein_g: float | None
+    avg_carbs_g: float | None
+    avg_fat_g: float | None
+    weight_start: float | None
+    weight_end: float | None
+    weight_change_lbs: float | None
+    height: float | None
+    age: int | None
+    gender: str | None
+    activity_level: str | None
 
     @classmethod
-    def from_days(cls, days: list[DailyMetric]) -> "WeeklyStats":
-        def avg(values: list) -> Optional[float]:
+    def from_days(cls, days: list[DailyMetric]) -> WeeklyStats:
+        def avg(values: list) -> float | None:
             clean = [v for v in values if v is not None]
             return round(mean(clean), 1) if clean else None
 

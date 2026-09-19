@@ -15,11 +15,12 @@ import logging
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Literal
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from openai import OpenAIError
 from pydantic import BaseModel, Field
 from starlette.background import BackgroundTask
 
@@ -49,7 +50,7 @@ class WeeklyReportRequest(BaseModel):
         default="rule_based",
         description="Which advisor to use for generating advice/reinforcement text",
     )
-    goals: Optional[dict] = Field(
+    goals: dict | None = Field(
         default=None,
         description=(
             "Optional standing user goals -- goal_type, target_weight_lbs, "
@@ -57,7 +58,7 @@ class WeeklyReportRequest(BaseModel):
             "target_steps, target_active_minutes. Any subset is fine."
         ),
     )
-    openai_api_key: Optional[str] = Field(
+    openai_api_key: str | None = Field(
         default=None,
         description="Optional per-request OpenAI key override; otherwise reads OPENAI_API_KEY",
     )
@@ -88,7 +89,7 @@ def generate_weekly_report(payload: WeeklyReportRequest) -> FileResponse:
     if payload.advisor == "openai":
         try:
             advisor = OpenAIAdvisor(api_key=payload.openai_api_key)
-        except Exception:
+        except OpenAIError:
             logger.warning(
                 "Could not construct OpenAIAdvisor (missing/invalid key?); "
                 "falling back to rule-based advice."
