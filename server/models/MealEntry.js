@@ -101,4 +101,5 @@ const mealEntrySchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('MealEntry', mealEntrySchema);
+module.exports =
+  mongoose.models.MealEntry || mongoose.model('MealEntry', mealEntrySchema);

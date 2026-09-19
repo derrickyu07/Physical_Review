@@ -137,9 +137,11 @@ export const mealSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(deleteMeal.fulfilled, (state, action) => {
+        state.isLoading = false;
         state.meals = state.meals.filter((m) => m._id !== action.payload);
       })
       .addCase(deleteMeal.rejected, (state, action) => {
+        state.isLoading = false;
         state.isError = true;
         state.message = action.payload;
       });

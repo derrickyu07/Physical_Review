@@ -4,8 +4,8 @@ const USDA_BASE_URL = 'https://api.nal.usda.gov/fdc/v1';
 
 const DEFAULT_DATA_TYPES = ['Foundation', 'SR Legacy', 'Branded'];
 
-const searchFoods = async (query, pageSize = 25) => {
-  const response = await axios.get(`${USDA_BASE_URL}/foods/search`, {
+const searchFoods = async (query, pageSize = 25, deps = { axios }) => {
+  const response = await deps.axios.get(`${USDA_BASE_URL}/foods/search`, {
     params: {
       api_key: process.env.USDA_API_KEY,
       query,
@@ -16,8 +16,8 @@ const searchFoods = async (query, pageSize = 25) => {
   return response.data;
 };
 
-const getFoodDetails = async (fdcId) => {
-  const response = await axios.get(`${USDA_BASE_URL}/food/${fdcId}`, {
+const getFoodDetails = async (fdcId, deps = { axios }) => {
+  const response = await deps.axios.get(`${USDA_BASE_URL}/food/${fdcId}`, {
     params: {
       api_key: process.env.USDA_API_KEY,
     },

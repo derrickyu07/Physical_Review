@@ -1,12 +1,12 @@
-const { describe, it, expect, beforeEach } = require('vitest');
-const express = require('express');
-const request = require('supertest');
+import { describe, it, expect, beforeEach } from 'vitest';
+import express from 'express';
+import request from 'supertest';
 
-const User = require('../../models/User');
-const ActivityEntry = require('../../models/PhysicalActivityEntry');
-const activityEntryRoutes = require('../../routes/physicalActivityEntryRoutes');
+import User from '../../models/User';
+import ActivityEntry from '../../models/PhysicalActivityEntry';
+import activityEntryRoutes from '../../routes/physicalActivityEntryRoutes';
 
-const { authHeader } = require('../helpers/auth');
+import { authHeader } from '../helpers/auth';
 
 const app = express();
 app.use(express.json());
@@ -37,28 +37,27 @@ beforeEach(async () => {
 });
 
 describe('GET /api/activities/:id - IDOR protection', () => {
-  it("return 404 when User B requests User A's meal", async () => {
-    const res = (
-      await request(app).get(`/api/activities/${activityOwnedByA._id},`)
-    ).set(authHeader(userB._id.toString()));
+  it("return 404 when User B requests User A's activity", async () => {
+    const res = await request(app)
+      .get(`/api/activities/${activityOwnedByA._id}`)
+      .set(authHeader(userB._id.toString()));
     expect(res.status).toBe(404);
 
     expect(res.body).not.toHaveProperty('activityType', 'running');
   });
   it('returns 200 with the activity when User B request their own activity', async () => {
-    const res = (
-      await request(app).get(`/api/activities/${activityOwnedByA._id}`)
-    ).set(authHeader(userA._id.toString()));
+    const res = await request(app)
+      .get(`/api/activities/${activityOwnedByA._id}`)
+      .set(authHeader(userA._id.toString()));
     expect(res.status).toBe(200);
     expect(res.body.activityType).toBe('running');
   });
 });
 
 describe('PUT /api/activity/:id - IDOR protection', () => {
-  it("returns 404 and does not modify the record when User B updates UserA's meal", async () => {
-    const res = (
-      await request(app).put(`/api/activities/${activityOwnedByA._id}`)
-    )
+  it("returns 404 and does not modify the record when User B updates UserA's activity", async () => {
+    const res = await request(app)
+      .put(`/api/activities/${activityOwnedByA._id}`)
       .set(authHeader(userB._id.toString()))
       .send({ activityType: 'tennis' });
     expect(res.status).toBe(404);
@@ -71,23 +70,23 @@ describe('PUT /api/activity/:id - IDOR protection', () => {
 describe('DELETE /api/activities/:id - IDOR protection', () => {
   it("returns 404 and does not delete the record when User B deletes User A's activity", async () => {
     const res = await request(app)
-      .put(`/api/activities/${activityOwnedByA._id}`)
+      .delete(`/api/activities/${activityOwnedByA._id}`)
       .set(authHeader(userB._id.toString()));
-    expect(res.status(404));
+    expect(res.status).toBe(404);
 
     const stillExists = await ActivityEntry.findById(activityOwnedByA._id);
     expect(stillExists).not.toBeNull();
   });
 
-  it('returns 200 and deletes the record when User A deletes their own meal', async () => {
+  it('returns 200 and deletes the record when User A deletes their own activity', async () => {
     const res = await request(app)
-      .delete(`/api/meals/${activityOwnedByA._id}`)
+      .delete(`/api/activities/${activityOwnedByA._id}`)
       .set(authHeader(userA._id.toString()));
 
     expect(res.status).toBe(200);
 
     const gone = await ActivityEntry.findById(activityOwnedByA._id);
-    expect(gone).toBeNull;
+    expect(gone).toBeNull();
   });
 });
 describe('GET /api/activities - scoping across users', () => {
@@ -100,12 +99,12 @@ describe('GET /api/activities - scoping across users', () => {
       caloriesBurned: 200,
     });
 
-    const res = (await request(app).get('/api/activities')).set(
-      authHeader(userA._id.toString()),
-    );
+    const res = await request(app)
+      .get('/api/activities')
+      .set(authHeader(userA._id.toString()));
     expect(res.status).toBe(200);
     expect(res.body).toHaveLength(1);
-    expect(res.body[0].name).toBe('running');
+    expect(res.body[0].activityType).toBe('running');
   });
 });
 
@@ -119,11 +118,11 @@ describe('auth guard - protect middleware', () => {
     expect(res.body.message).toBe('Not authorized, no token');
   });
   it('returns 401 with a garbage/invalid token', async () => {
-    const res = (
-      await request(app).get(`/api/activities/${activityOwnedByA._id}`)
-    ).set('Authorization', 'Bearer not-a-real-token');
+    const res = await request(app)
+      .get(`/api/activities/${activityOwnedByA._id}`)
+      .set('Authorization', 'Bearer not-a-real-token');
 
     expect(res.status).toBe(401);
-    expect(res.body.message).toBePressed('Not authorized, token failed');
+    expect(res.body.message).toBe('Not authorized, token failed');
   });
 });

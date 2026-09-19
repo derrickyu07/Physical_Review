@@ -1,5 +1,7 @@
 import { beforeAll, afterEach, afterAll } from 'vitest';
 import mongoose from 'mongoose';
+process.env.JWT_SECRET = 'test-jwt-secret';
+
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
 let mongoServer;

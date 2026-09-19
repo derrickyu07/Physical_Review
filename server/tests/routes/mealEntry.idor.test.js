@@ -1,11 +1,11 @@
-const { describe, it, expect, beforeEach } = require('vitest');
-const express = require('express');
-const request = require('supertest');
+import { describe, it, expect, beforeEach } from 'vitest';
+import express from 'express';
+import request from 'supertest';
 
-const User = require('../../models/User');
-const MealEntry = require('../../models/MealEntry');
-const mealEntryRoutes = require('../../routes/mealEntryRoutes'); // adjust path if named differently
-const { authHeader } = require('../helpers/auth');
+import User from '../../models/User';
+import MealEntry from '../../models/MealEntry';
+import mealEntryRoutes from '../../routes/mealEntryRoutes'; // adjust path if named differently
+import { authHeader } from '../helpers/auth';
 
 const app = express();
 app.use(express.json());

@@ -1,11 +1,15 @@
 import { defineConfig } from 'vitest/config';
-
 export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup.js'],
     testTimeout: 15000, // mongodb-memory-server can be slow to spin up on first run
+    server: {
+      deps: {
+        inline: ['jsonwebtoken'],
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html'],

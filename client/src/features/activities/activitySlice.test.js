@@ -60,7 +60,6 @@ describe.each([
         expect( state.isLoading).toBe(false);
         expect(state.isError).toBe(true);
         expect(state.message).toBe('Request failed');
-        expect(state.activity).toBe('Request failed');
         expect(state.activity).toBeNull();
     });
     })
@@ -96,13 +95,12 @@ describe.each([
     });
   });
    describe('deleteActivity lifecycle', () => {
-    it('has no pending case — isLoading is unaffected while a delete is in flight', () => {
+    it('sets isLoading to true while a delete is in flight', () => {
       // Documents current behavior rather than asserting it's correct —
       // worth confirming this omission (no pending reducer case) is
       // intentional, since every other thunk here does set isLoading.
       const state = reducer(initialState, { type: deleteActivity.pending.type });
-      expect(state).toEqual(initialState);
-    });
+      expect(state.isLoading).toBe(true);    });
  
     it('removes the deleted activity from the activities array on fulfilled', () => {
       const state = {
@@ -118,7 +116,7 @@ describe.each([
         payload: '1',
       });
  
-      expect(result.activities).toEqual([{ _id: '2', activityType: 'Toast' }]);
+      expect(result.activities).toEqual([{ _id: '2', activityType: 'basketball' }]);
     });
  
     it('sets isError and message on rejected without mutating activities', () => {

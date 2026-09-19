@@ -56,14 +56,18 @@ const targetCalorieCount = (maintenance, goalType, intensity) => {
   return maintenance + adjustment;
 };
 
-const getEntriesForDateRange = async (userId, start, end) => {
+const getEntriesForDateRange = async (
+  userId,
+  start,
+  end,
+  deps = { MealEntry, PhysicalActivityEntry },
+) => {
   const [meals, activities] = await Promise.all([
-    MealEntry.find({ userId, mealDate: { $gte: start, $lte: end } }),
-    PhysicalActivityEntry.find({
+    deps.MealEntry.find({ userId, mealDate: { $gte: start, $lte: end } }),
+    deps.PhysicalActivityEntry.find({
       userId,
       activityDate: { $gte: start, $lte: end },
     }),
-    PhysicalActivityEntry.findOne({ userId }),
   ]);
   return { meals, activities };
 };

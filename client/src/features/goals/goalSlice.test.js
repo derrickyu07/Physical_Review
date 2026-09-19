@@ -60,7 +60,6 @@ describe.each([
         expect( state.isLoading).toBe(false);
         expect(state.isError).toBe(true);
         expect(state.message).toBe('Request failed');
-        expect(state.goal).toBe('Request failed');
         expect(state.goal).toBeNull();
     });
     })

@@ -4,8 +4,8 @@ const calculateBMI = (height, weight) => {
   return Math.round((weight / (height * height)) * 703 * 10) / 10;
 };
 
-const getUserMetrics = async (userId) => {
-  const bodyMetric = await BodyMetricEntry.findOne({ userId: userId }).sort({
+const getUserMetrics = async (userId, deps = { BodyMetricEntry }) => {
+  const bodyMetric = await deps.BodyMetricEntry.findOne({ userId }).sort({
     createdAt: -1,
   });
   if (!bodyMetric) return null;
@@ -19,17 +19,22 @@ const getUserMetrics = async (userId) => {
   };
 };
 
-const updateUserBodyMetric = async (id, userId, updates) => {
+const updateUserBodyMetric = async (
+  id,
+  userId,
+  updates,
+  deps = { BodyMetricEntry, calculateBMI },
+) => {
   if (updates.height || updates.weight) {
     // recalc BMI if either changed, using whichever value is fresher
-    const existing = await BodyMetricEntry.findOne({ _id: id, userId });
+    const existing = await deps.BodyMetricEntry.findOne({ _id: id, userId });
     if (!existing) return null;
     const height = updates.height ?? existing.height;
     const weight = updates.weight ?? existing.weight;
-    updates.bmi = calculateBMI(height, weight);
+    updates.bmi = deps.calculateBMI(height, weight);
   }
 
-  return BodyMetricEntry.findOneAndUpdate(
+  return deps.BodyMetricEntry.findOneAndUpdate(
     { _id: id, userId },
     { $set: updates },
     { returnDocument: 'after', runValidators: true },
@@ -43,10 +48,11 @@ const createUserBodyMetric = async (
   gender,
   age,
   activityLevel,
+  deps = { BodyMetricEntry, calculateBMI },
 ) => {
-  const bmi = calculateBMI(height, weight);
+  const bmi = deps.calculateBMI(height, weight);
 
-  const bodyMetric = await BodyMetricEntry.create({
+  const bodyMetric = await deps.BodyMetricEntry.create({
     userId: userId,
     weight: weight,
     height: height,

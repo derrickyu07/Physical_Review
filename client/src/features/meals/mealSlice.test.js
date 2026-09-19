@@ -98,12 +98,12 @@ describe('mealSlice reducer',()=>{
     });
   });
    describe('deleteMeal lifecycle', () => {
-    it('has no pending case — isLoading is unaffected while a delete is in flight', () => {
+    it('sets isLoading to true while a delete is in flight', () => {
       // Documents current behavior rather than asserting it's correct —
       // worth confirming this omission (no pending reducer case) is
       // intentional, since every other thunk here does set isLoading.
       const state = reducer(initialState, { type: deleteMeal.pending.type });
-      expect(state).toEqual(initialState);
+      expect(state.isLoading).toBe(true);
     });
  
     it('removes the deleted meal from the meals array on fulfilled', () => {

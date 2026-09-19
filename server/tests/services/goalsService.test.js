@@ -1,6 +1,6 @@
-const { describe, it, expect, vi, beforeEach } = require('vitest');
+import { describe, it, expect } from 'vitest';
 
-const { deriveGoalStatus } = require('../../services/goalService');
+import { deriveGoalStatus } from '../../services/goalsService';
 
 const NOW = new Date('2026-06-15T12:00:00.000Z');
 const PAST = new Date('2026-01-01T00:00:00.000Z');
